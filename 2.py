@@ -7,7 +7,6 @@ from PIL import Image, ImageDraw
 import io
 import base64
 import random
-import time
 
 # Konfigurasi halaman
 st.set_page_config(
@@ -17,21 +16,19 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Tema warna yang lebih kontras dan menyenangkan
+# Tema warna
 primary_color = "#FF6B6B"
 secondary_color = "#4ECDC4"
 accent_color = "#FFD166"
 background_color = "#F7FFF7"
 dark_color = "#1A535C"
-text_color = "#333333"  
-header_color = "#FFFFFF"  
-card_background = "#FFFFFF"
-contrast_color = "#073B4C"
+text_color = "#333333"  # Warna teks baru untuk kontras
+header_color = "#FFFFFF"  # Warna baru untuk teks header
 
-# CSS untuk styling yang lebih baik
+# CSS untuk styling
 st.markdown(f"""
 <style>
-    /* Warna utama dengan kontras lebih baik */
+    /* Warna utama */
     .stApp {{
         background: linear-gradient(135deg, {background_color}, #E0F7E0);
         background-attachment: fixed;
@@ -40,22 +37,8 @@ st.markdown(f"""
         background-color: transparent !important;
     }}
     h1, h2, h3, h4, h5, h6 {{
-        color: {contrast_color} !important;
-        text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
-        position: relative;
-        z-index: 2;
-    }}
-    .header-with-emoji {{
-        display: flex;
-        align-items: center;
-        gap: 15px;
-    }}
-    .header-with-emoji .emoji {{
-        animation: bounce 2s infinite;
-    }}
-    @keyframes bounce {{
-        0%, 100% {{ transform: translateY(0) rotate(0deg); }}
-        50% {{ transform: translateY(-10px) rotate(10deg); }}
+        color: {header_color} !important;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
     }}
     p, div, span, li, td {{
         color: {text_color} !important;
@@ -83,24 +66,16 @@ st.markdown(f"""
         background: linear-gradient(to right, {accent_color}, {secondary_color}) !important;
     }}
     .stTabs>div>div>div>div {{
-        background: linear-gradient(135deg, rgba(255,255,255,0.8), rgba(255,255,255,0.4)) !important;
-        color: {contrast_color} !important;
+        background: linear-gradient(135deg, {secondary_color}, {primary_color}) !important;
+        color: {header_color} !important;  /* Perbaikan kontras tab */
         border-radius: 15px 15px 0 0 !important;
         padding: 12px 24px !important;
         font-weight: bold;
         margin: 0 5px;
         box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        border: 2px solid {secondary_color};
-        transition: all 0.3s ease;
-    }}
-    .stTabs>div>div>div>div:hover {{
-        transform: scale(1.05);
-        background: linear-gradient(135deg, {secondary_color}, {primary_color}) !important;
-        color: white !important;
     }}
     .stTabs>div>div>div>div[aria-selected="true"] {{
         background: linear-gradient(135deg, {primary_color}, {accent_color}) !important;
-        color: white !important;
         transform: scale(1.05);
         z-index: 1;
     }}
@@ -114,7 +89,7 @@ st.markdown(f"""
         box-shadow: 0 4px 8px rgba(0,0,0,0.1) !important;
     }}
     .element-card {{
-        background: {card_background};
+        background: white;
         border-radius: 20px;
         padding: 20px;
         margin: 15px;
@@ -122,8 +97,6 @@ st.markdown(f"""
         transition: all 0.4s ease;
         height: 100%;
         border: 2px solid {secondary_color};
-        position: relative;
-        overflow: hidden;
     }}
     .element-card:hover {{
         transform: translateY(-10px) rotate(2deg);
@@ -189,22 +162,6 @@ st.markdown(f"""
         margin-bottom: 30px;
         text-align: center;
         box-shadow: 0 8px 16px rgba(0,0,0,0.2);
-        position: relative;
-        overflow: hidden;
-    }}
-    .periodic-header::after {{
-        content: "";
-        position: absolute;
-        top: -50%;
-        left: -50%;
-        width: 200%;
-        height: 200%;
-        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
-        animation: rotate 20s linear infinite;
-    }}
-    @keyframes rotate {{
-        0% {{ transform: rotate(0deg); }}
-        100% {{ transform: rotate(360deg); }}
     }}
     .chemical-equation {{
         font-family: 'Courier New', monospace;
@@ -224,25 +181,12 @@ st.markdown(f"""
         border-radius: 50%;
         background: rgba(255,255,255,0.3);
         animation: float 15s infinite ease-in-out;
-        z-index: 1;
     }}
     @keyframes float {{
         0% {{ transform: translateY(0) translateX(0) rotate(0); opacity: 0; }}
         10% {{ opacity: 1; }}
         90% {{ opacity: 0.8; }}
         100% {{ transform: translateY(-1000px) translateX(200px) rotate(360deg); opacity: 0; }}
-    }}
-    .floating-emoji {{
-        position: absolute;
-        font-size: 24px;
-        animation: float-emoji 10s infinite ease-in-out;
-        z-index: 1;
-    }}
-    @keyframes float-emoji {{
-        0%, 100% {{ transform: translateY(0) translateX(0) rotate(0deg); }}
-        25% {{ transform: translateY(-20px) translateX(10px) rotate(10deg); }}
-        50% {{ transform: translateY(-40px) translateX(20px) rotate(20deg); }}
-        75% {{ transform: translateY(-20px) translateX(30px) rotate(10deg); }}
     }}
     .compatibility-table {{
         width: 100%;
@@ -286,54 +230,15 @@ st.markdown(f"""
         display: inline-block;
         width: 60px;
         text-align: center;
-        animation: pulse 2s infinite;
-    }}
-    @keyframes pulse {{
-        0% {{ transform: scale(1); }}
-        50% {{ transform: scale(1.2); }}
-        100% {{ transform: scale(1); }}
     }}
     /* Perbaikan kontras untuk header di dalam card */
     .element-card h3 {{
         color: {dark_color} !important;
-        position: relative;
-        z-index: 2;
-    }}
-    .element-card p {{
-        position: relative;
-        z-index: 2;
-    }}
-    .tab-content {{
-        position: relative;
-        z-index: 2;
-    }}
-    .floating-chem {{
-        position: absolute;
-        font-size: 40px;
-        opacity: 0.2;
-        animation: float-chem 15s infinite linear;
-        z-index: 1;
-    }}
-    @keyframes float-chem {{
-        0% {{ transform: translate(0, 0) rotate(0deg); opacity: 0; }}
-        10% {{ opacity: 0.2; }}
-        90% {{ opacity: 0.2; }}
-        100% {{ transform: translate(100vw, -100vh) rotate(360deg); opacity: 0; }}
-    }}
-    .element-card::before {{
-        content: "";
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: radial-gradient(circle at center, rgba(255,255,255,0.8), rgba(255,255,255,0.4));
-        z-index: 1;
     }}
 </style>
 """, unsafe_allow_html=True)
 
-# Animasi gelembung dan emoji
+# Animasi gelembung
 st.markdown("""
 <script>
 function createBubble() {
@@ -358,34 +263,8 @@ function createBubble() {
     }, animationDuration * 1000);
 }
 
-function createFloatingEmoji() {
-    const emojis = ["🧪", "🔬", "⚗️", "🧫", "🧴", "💧", "🔥", "⚡", "🧲", "🧪", "🔭"];
-    const emoji = document.createElement('div');
-    emoji.classList.add('floating-emoji');
-    emoji.innerHTML = emojis[Math.floor(Math.random() * emojis.length)];
-    
-    const size = Math.random() * 30 + 20;
-    emoji.style.fontSize = `${size}px`;
-    
-    const posX = Math.random() * window.innerWidth;
-    const posY = Math.random() * window.innerHeight;
-    emoji.style.left = `${posX}px`;
-    emoji.style.top = `${posY}px`;
-    
-    const animationDuration = Math.random() * 15 + 10;
-    emoji.style.animationDuration = `${animationDuration}s`;
-    
-    document.body.appendChild(emoji);
-    
-    setTimeout(() => {
-        emoji.remove();
-    }, animationDuration * 1000);
-}
-
 // Create bubbles every 1.5 seconds
 setInterval(createBubble, 1500);
-// Create floating emojis every 3 seconds
-setInterval(createFloatingEmoji, 3000);
 </script>
 """, unsafe_allow_html=True)
 
@@ -471,175 +350,11 @@ PERIODIC_TABLE = [
     {"Symbol": "Kr", "Name": "Kripton", "AtomicNumber": 36, "AtomicMass": 83.798, 
      "Group": 18, "Period": 4, "Category": "Gas Mulia", "Color": "#4ECDC4", "Electronegativity": 3.00, "Hazards": ["Gas Bertekanan"]},
     
-    # Periode 5
-    {"Symbol": "Rb", "Name": "Rubidium", "AtomicNumber": 37, "AtomicMass": 85.468, 
-     "Group": 1, "Period": 5, "Category": "Logam Alkali", "Color": "#FFD166", "Electronegativity": 0.82, "Hazards": ["Mudah Terbakar", "Reaktif"]},
-    {"Symbol": "Sr", "Name": "Stronsium", "AtomicNumber": 38, "AtomicMass": 87.62, 
-     "Group": 2, "Period": 5, "Category": "Logam Alkali Tanah", "Color": "#06D6A0", "Electronegativity": 0.95, "Hazards": []},
-    {"Symbol": "Y", "Name": "Yttrium", "AtomicNumber": 39, "AtomicMass": 88.906, 
-     "Group": 3, "Period": 5, "Category": "Logam Transisi", "Color": "#B5651D", "Electronegativity": 1.22, "Hazards": []},
-    {"Symbol": "Zr", "Name": "Zirkonium", "AtomicNumber": 40, "AtomicMass": 91.224, 
-     "Group": 4, "Period": 5, "Category": "Logam Transisi", "Color": "#B5651D", "Electronegativity": 1.33, "Hazards": []},
-    {"Symbol": "Nb", "Name": "Niobium", "AtomicNumber": 41, "AtomicMass": 92.906, 
-     "Group": 5, "Period": 5, "Category": "Logam Transisi", "Color": "#B5651D", "Electronegativity": 1.6, "Hazards": []},
-    {"Symbol": "Mo", "Name": "Molibdenum", "AtomicNumber": 42, "AtomicMass": 95.95, 
-     "Group": 6, "Period": 5, "Category": "Logam Transisi", "Color": "#B5651D", "Electronegativity": 2.16, "Hazards": []},
-    {"Symbol": "Tc", "Name": "Teknesium", "AtomicNumber": 43, "AtomicMass": 98, 
-     "Group": 7, "Period": 5, "Category": "Logam Transisi", "Color": "#B5651D", "Electronegativity": 1.9, "Hazards": ["Radioaktif"]},
-    {"Symbol": "Ru", "Name": "Rutenium", "AtomicNumber": 44, "AtomicMass": 101.07, 
-     "Group": 8, "Period": 5, "Category": "Logam Transisi", "Color": "#B5651D", "Electronegativity": 2.2, "Hazards": []},
-    {"Symbol": "Rh", "Name": "Rodium", "AtomicNumber": 45, "AtomicMass": 102.91, 
-     "Group": 9, "Period": 5, "Category": "Logam Transisi", "Color": "#B5651D", "Electronegativity": 2.28, "Hazards": []},
-    {"Symbol": "Pd", "Name": "Paladium", "AtomicNumber": 46, "AtomicMass": 106.42, 
-     "Group": 10, "Period": 5, "Category": "Logam Transisi", "Color": "#B5651D", "Electronegativity": 2.20, "Hazards": []},
-    {"Symbol": "Ag", "Name": "Perak", "AtomicNumber": 47, "AtomicMass": 107.87, 
-     "Group": 11, "Period": 5, "Category": "Logam Transisi", "Color": "#D3D3D3", "Electronegativity": 1.93, "Hazards": []},
-    {"Symbol": "Cd", "Name": "Kadmium", "AtomicNumber": 48, "AtomicMass": 112.41, 
-     "Group": 12, "Period": 5, "Category": "Logam Transisi", "Color": "#7FFFD4", "Electronegativity": 1.69, "Hazards": ["Beracun"]},
-    {"Symbol": "In", "Name": "Indium", "AtomicNumber": 49, "AtomicMass": 114.82, 
-     "Group": 13, "Period": 5, "Category": "Logam Pascatransisi", "Color": "#118AB2", "Electronegativity": 1.78, "Hazards": []},
-    {"Symbol": "Sn", "Name": "Timah", "AtomicNumber": 50, "AtomicMass": 118.71, 
-     "Group": 14, "Period": 5, "Category": "Logam Pascatransisi", "Color": "#073B4C", "Electronegativity": 1.96, "Hazards": []},
-    {"Symbol": "Sb", "Name": "Antimon", "AtomicNumber": 51, "AtomicMass": 121.76, 
-     "Group": 15, "Period": 5, "Category": "Metaloid", "Color": "#FF6B6B", "Electronegativity": 2.05, "Hazards": ["Beracun"]},
-    {"Symbol": "Te", "Name": "Telurium", "AtomicNumber": 52, "AtomicMass": 127.60, 
-     "Group": 16, "Period": 5, "Category": "Metaloid", "Color": "#FFD166", "Electronegativity": 2.1, "Hazards": ["Beracun"]},
-    {"Symbol": "I", "Name": "Iodin", "AtomicNumber": 53, "AtomicMass": 126.90, 
-     "Group": 17, "Period": 5, "Category": "Halogen", "Color": "#9400D3", "Electronegativity": 2.66, "Hazards": ["Beracun"]},
-    {"Symbol": "Xe", "Name": "Xenon", "AtomicNumber": 54, "AtomicMass": 131.29, 
-     "Group": 18, "Period": 5, "Category": "Gas Mulia", "Color": "#4ECDC4", "Electronegativity": 2.6, "Hazards": ["Gas Bertekanan"]},
+    # ... (unsur-unsur lain hingga 118)
     
-    # Periode 6
-    {"Symbol": "Cs", "Name": "Sesium", "AtomicNumber": 55, "AtomicMass": 132.91, 
-     "Group": 1, "Period": 6, "Category": "Logam Alkali", "Color": "#FFD166", "Electronegativity": 0.79, "Hazards": ["Mudah Terbakar", "Reaktif"]},
-    {"Symbol": "Ba", "Name": "Barium", "AtomicNumber": 56, "AtomicMass": 137.33, 
-     "Group": 2, "Period": 6, "Category": "Logam Alkali Tanah", "Color": "#06D6A0", "Electronegativity": 0.89, "Hazards": ["Beracun"]},
-    {"Symbol": "La", "Name": "Lantanum", "AtomicNumber": 57, "AtomicMass": 138.91, 
-     "Group": 3, "Period": 6, "Category": "Lantanida", "Color": "#FF9E6D", "Electronegativity": 1.10, "Hazards": []},
-    {"Symbol": "Ce", "Name": "Serium", "AtomicNumber": 58, "AtomicMass": 140.12, 
-     "Group": None, "Period": 6, "Category": "Lantanida", "Color": "#FF9E6D", "Electronegativity": 1.12, "Hazards": []},
-    {"Symbol": "Pr", "Name": "Praseodimium", "AtomicNumber": 59, "AtomicMass": 140.91, 
-     "Group": None, "Period": 6, "Category": "Lantanida", "Color": "#FF9E6D", "Electronegativity": 1.13, "Hazards": []},
-    {"Symbol": "Nd", "Name": "Neodimium", "AtomicNumber": 60, "AtomicMass": 144.24, 
-     "Group": None, "Period": 6, "Category": "Lantanida", "Color": "#FF9E6D", "Electronegativity": 1.14, "Hazards": []},
-    {"Symbol": "Pm", "Name": "Prometium", "AtomicNumber": 61, "AtomicMass": 145, 
-     "Group": None, "Period": 6, "Category": "Lantanida", "Color": "#FF9E6D", "Electronegativity": 1.13, "Hazards": ["Radioaktif"]},
-    {"Symbol": "Sm", "Name": "Samarium", "AtomicNumber": 62, "AtomicMass": 150.36, 
-     "Group": None, "Period": 6, "Category": "Lantanida", "Color": "#FF9E6D", "Electronegativity": 1.17, "Hazards": []},
-    {"Symbol": "Eu", "Name": "Europium", "AtomicNumber": 63, "AtomicMass": 151.96, 
-     "Group": None, "Period": 6, "Category": "Lantanida", "Color": "#FF9E6D", "Electronegativity": 1.2, "Hazards": []},
-    {"Symbol": "Gd", "Name": "Gadolinium", "AtomicNumber": 64, "AtomicMass": 157.25, 
-     "Group": None, "Period": 6, "Category": "Lantanida", "Color": "#FF9E6D", "Electronegativity": 1.2, "Hazards": []},
-    {"Symbol": "Tb", "Name": "Terbium", "AtomicNumber": 65, "AtomicMass": 158.93, 
-     "Group": None, "Period": 6, "Category": "Lantanida", "Color": "#FF9E6D", "Electronegativity": 1.2, "Hazards": []},
-    {"Symbol": "Dy", "Name": "Disprosium", "AtomicNumber": 66, "AtomicMass": 162.50, 
-     "Group": None, "Period": 6, "Category": "Lantanida", "Color": "#FF9E6D", "Electronegativity": 1.22, "Hazards": []},
-    {"Symbol": "Ho", "Name": "Holmium", "AtomicNumber": 67, "AtomicMass": 164.93, 
-     "Group": None, "Period": 6, "Category": "Lantanida", "Color": "#FF9E6D", "Electronegativity": 1.23, "Hazards": []},
-    {"Symbol": "Er", "Name": "Erbium", "AtomicNumber": 68, "AtomicMass": 167.26, 
-     "Group": None, "Period": 6, "Category": "Lantanida", "Color": "#FF9E6D", "Electronegativity": 1.24, "Hazards": []},
-    {"Symbol": "Tm", "Name": "Tulium", "AtomicNumber": 69, "AtomicMass": 168.93, 
-     "Group": None, "Period": 6, "Category": "Lantanida", "Color": "#FF9E6D", "Electronegativity": 1.25, "Hazards": []},
-    {"Symbol": "Yb", "Name": "Iterbium", "AtomicNumber": 70, "AtomicMass": 173.05, 
-     "Group": None, "Period": 6, "Category": "Lantanida", "Color": "#FF9E6D", "Electronegativity": 1.1, "Hazards": []},
-    {"Symbol": "Lu", "Name": "Lutesium", "AtomicNumber": 71, "AtomicMass": 174.97, 
-     "Group": 3, "Period": 6, "Category": "Lantanida", "Color": "#FF9E6D", "Electronegativity": 1.27, "Hazards": []},
-    {"Symbol": "Hf", "Name": "Hafnium", "AtomicNumber": 72, "AtomicMass": 178.49, 
-     "Group": 4, "Period": 6, "Category": "Logam Transisi", "Color": "#B5651D", "Electronegativity": 1.3, "Hazards": []},
-    {"Symbol": "Ta", "Name": "Tantalum", "AtomicNumber": 73, "AtomicMass": 180.95, 
-     "Group": 5, "Period": 6, "Category": "Logam Transisi", "Color": "#B5651D", "Electronegativity": 1.5, "Hazards": []},
-    {"Symbol": "W", "Name": "Wolfram", "AtomicNumber": 74, "AtomicMass": 183.84, 
-     "Group": 6, "Period": 6, "Category": "Logam Transisi", "Color": "#B5651D", "Electronegativity": 2.36, "Hazards": []},
-    {"Symbol": "Re", "Name": "Renium", "AtomicNumber": 75, "AtomicMass": 186.21, 
-     "Group": 7, "Period": 6, "Category": "Logam Transisi", "Color": "#B5651D", "Electronegativity": 1.9, "Hazards": []},
-    {"Symbol": "Os", "Name": "Osmium", "AtomicNumber": 76, "AtomicMass": 190.23, 
-     "Group": 8, "Period": 6, "Category": "Logam Transisi", "Color": "#B5651D", "Electronegativity": 2.2, "Hazards": ["Beracun"]},
-    {"Symbol": "Ir", "Name": "Iridium", "AtomicNumber": 77, "AtomicMass": 192.22, 
-     "Group": 9, "Period": 6, "Category": "Logam Transisi", "Color": "#B5651D", "Electronegativity": 2.20, "Hazards": []},
-    {"Symbol": "Pt", "Name": "Platina", "AtomicNumber": 78, "AtomicMass": 195.08, 
-     "Group": 10, "Period": 6, "Category": "Logam Transisi", "Color": "#B5651D", "Electronegativity": 2.28, "Hazards": []},
-    {"Symbol": "Au", "Name": "Emas", "AtomicNumber": 79, "AtomicMass": 196.97, 
-     "Group": 11, "Period": 6, "Category": "Logam Transisi", "Color": "#FFD700", "Electronegativity": 2.54, "Hazards": []},
-    {"Symbol": "Hg", "Name": "Raksa", "AtomicNumber": 80, "AtomicMass": 200.59, 
-     "Group": 12, "Period": 6, "Category": "Logam Transisi", "Color": "#7FFFD4", "Electronegativity": 2.00, "Hazards": ["Beracun"]},
-    {"Symbol": "Tl", "Name": "Talium", "AtomicNumber": 81, "AtomicMass": 204.38, 
-     "Group": 13, "Period": 6, "Category": "Logam Pascatransisi", "Color": "#118AB2", "Electronegativity": 1.62, "Hazards": ["Beracun"]},
-    {"Symbol": "Pb", "Name": "Timbal", "AtomicNumber": 82, "AtomicMass": 207.2, 
-     "Group": 14, "Period": 6, "Category": "Logam Pascatransisi", "Color": "#073B4C", "Electronegativity": 2.33, "Hazards": ["Beracun"]},
-    {"Symbol": "Bi", "Name": "Bismut", "AtomicNumber": 83, "AtomicMass": 208.98, 
-     "Group": 15, "Period": 6, "Category": "Logam Pascatransisi", "Color": "#FF6B6B", "Electronegativity": 2.02, "Hazards": []},
-    {"Symbol": "Po", "Name": "Polonium", "AtomicNumber": 84, "AtomicMass": 209, 
-     "Group": 16, "Period": 6, "Category": "Metaloid", "Color": "#FFD166", "Electronegativity": 2.0, "Hazards": ["Radioaktif", "Beracun"]},
-    {"Symbol": "At", "Name": "Astatin", "AtomicNumber": 85, "AtomicMass": 210, 
-     "Group": 17, "Period": 6, "Category": "Halogen", "Color": "#06D6A0", "Electronegativity": 2.2, "Hazards": ["Radioaktif"]},
-    {"Symbol": "Rn", "Name": "Radon", "AtomicNumber": 86, "AtomicMass": 222, 
-     "Group": 18, "Period": 6, "Category": "Gas Mulia", "Color": "#4ECDC4", "Electronegativity": None, "Hazards": ["Radioaktif"]},
-    
-    # Periode 7
-    {"Symbol": "Fr", "Name": "Fransium", "AtomicNumber": 87, "AtomicMass": 223, 
-     "Group": 1, "Period": 7, "Category": "Logam Alkali", "Color": "#FFD166", "Electronegativity": 0.7, "Hazards": ["Radioaktif"]},
-    {"Symbol": "Ra", "Name": "Radium", "AtomicNumber": 88, "AtomicMass": 226, 
-     "Group": 2, "Period": 7, "Category": "Logam Alkali Tanah", "Color": "#06D6A0", "Electronegativity": 0.9, "Hazards": ["Radioaktif"]},
-    {"Symbol": "Ac", "Name": "Aktinium", "AtomicNumber": 89, "AtomicMass": 227, 
-     "Group": 3, "Period": 7, "Category": "Aktinida", "Color": "#FF9E6D", "Electronegativity": 1.1, "Hazards": ["Radioaktif"]},
-    {"Symbol": "Th", "Name": "Thorium", "AtomicNumber": 90, "AtomicMass": 232.04, 
-     "Group": None, "Period": 7, "Category": "Aktinida", "Color": "#FF9E6D", "Electronegativity": 1.3, "Hazards": ["Radioaktif"]},
-    {"Symbol": "Pa", "Name": "Protaktinium", "AtomicNumber": 91, "AtomicMass": 231.04, 
-     "Group": None, "Period": 7, "Category": "Aktinida", "Color": "#FF9E6D", "Electronegativity": 1.5, "Hazards": ["Radioaktif"]},
-    {"Symbol": "U", "Name": "Uranium", "AtomicNumber": 92, "AtomicMass": 238.03, 
-     "Group": None, "Period": 7, "Category": "Aktinida", "Color": "#FF9E6D", "Electronegativity": 1.38, "Hazards": ["Radioaktif"]},
-    {"Symbol": "Np", "Name": "Neptunium", "AtomicNumber": 93, "AtomicMass": 237, 
-     "Group": None, "Period": 7, "Category": "Aktinida", "Color": "#FF9E6D", "Electronegativity": 1.36, "Hazards": ["Radioaktif"]},
-    {"Symbol": "Pu", "Name": "Plutonium", "AtomicNumber": 94, "AtomicMass": 244, 
-     "Group": None, "Period": 7, "Category": "Aktinida", "Color": "#FF9E6D", "Electronegativity": 1.28, "Hazards": ["Radioaktif"]},
-    {"Symbol": "Am", "Name": "Amerisium", "AtomicNumber": 95, "AtomicMass": 243, 
-     "Group": None, "Period": 7, "Category": "Aktinida", "Color": "#FF9E6D", "Electronegativity": 1.13, "Hazards": ["Radioaktif"]},
-    {"Symbol": "Cm", "Name": "Curium", "AtomicNumber": 96, "AtomicMass": 247, 
-     "Group": None, "Period": 7, "Category": "Aktinida", "Color": "#FF9E6D", "Electronegativity": 1.28, "Hazards": ["Radioaktif"]},
-    {"Symbol": "Bk", "Name": "Berkelium", "AtomicNumber": 97, "AtomicMass": 247, 
-     "Group": None, "Period": 7, "Category": "Aktinida", "Color": "#FF9E6D", "Electronegativity": 1.3, "Hazards": ["Radioaktif"]},
-    {"Symbol": "Cf", "Name": "Kalifornium", "AtomicNumber": 98, "AtomicMass": 251, 
-     "Group": None, "Period": 7, "Category": "Aktinida", "Color": "#FF9E6D", "Electronegativity": 1.3, "Hazards": ["Radioaktif"]},
-    {"Symbol": "Es", "Name": "Einsteinium", "AtomicNumber": 99, "AtomicMass": 252, 
-     "Group": None, "Period": 7, "Category": "Aktinida", "Color": "#FF9E6D", "Electronegativity": 1.3, "Hazards": ["Radioaktif"]},
-    {"Symbol": "Fm", "Name": "Fermium", "AtomicNumber": 100, "AtomicMass": 257, 
-     "Group": None, "Period": 7, "Category": "Aktinida", "Color": "#FF9E6D", "Electronegativity": 1.3, "Hazards": ["Radioaktif"]},
-    {"Symbol": "Md", "Name": "Mendelevium", "AtomicNumber": 101, "AtomicMass": 258, 
-     "Group": None, "Period": 7, "Category": "Aktinida", "Color": "#FF9E6D", "Electronegativity": 1.3, "Hazards": ["Radioaktif"]},
-    {"Symbol": "No", "Name": "Nobelium", "AtomicNumber": 102, "AtomicMass": 259, 
-     "Group": None, "Period": 7, "Category": "Aktinida", "Color": "#FF9E6D", "Electronegativity": 1.3, "Hazards": ["Radioaktif"]},
-    {"Symbol": "Lr", "Name": "Lawrensium", "AtomicNumber": 103, "AtomicMass": 262, 
-     "Group": 3, "Period": 7, "Category": "Aktinida", "Color": "#FF9E6D", "Electronegativity": 1.3, "Hazards": ["Radioaktif"]},
-    {"Symbol": "Rf", "Name": "Rutherfordium", "AtomicNumber": 104, "AtomicMass": 267, 
-     "Group": 4, "Period": 7, "Category": "Logam Transisi", "Color": "#B5651D", "Electronegativity": None, "Hazards": ["Radioaktif"]},
-    {"Symbol": "Db", "Name": "Dubnium", "AtomicNumber": 105, "AtomicMass": 268, 
-     "Group": 5, "Period": 7, "Category": "Logam Transisi", "Color": "#B5651D", "Electronegativity": None, "Hazards": ["Radioaktif"]},
-    {"Symbol": "Sg", "Name": "Seaborgium", "AtomicNumber": 106, "AtomicMass": 271, 
-     "Group": 6, "Period": 7, "Category": "Logam Transisi", "Color": "#B5651D", "Electronegativity": None, "Hazards": ["Radioaktif"]},
-    {"Symbol": "Bh", "Name": "Bohrium", "AtomicNumber": 107, "AtomicMass": 272, 
-     "Group": 7, "Period": 7, "Category": "Logam Transisi", "Color": "#B5651D", "Electronegativity": None, "Hazards": ["Radioaktif"]},
-    {"Symbol": "Hs", "Name": "Hassium", "AtomicNumber": 108, "AtomicMass": 270, 
-     "Group": 8, "Period": 7, "Category": "Logam Transisi", "Color": "#B5651D", "Electronegativity": None, "Hazards": ["Radioaktif"]},
-    {"Symbol": "Mt", "Name": "Meitnerium", "AtomicNumber": 109, "AtomicMass": 276, 
-     "Group": 9, "Period": 7, "Category": "Logam Transisi", "Color": "#B5651D", "Electronegativity": None, "Hazards": ["Radioaktif"]},
-    {"Symbol": "Ds", "Name": "Darmstadtium", "AtomicNumber": 110, "AtomicMass": 281, 
-     "Group": 10, "Period": 7, "Category": "Logam Transisi", "Color": "#B5651D", "Electronegativity": None, "Hazards": ["Radioaktif"]},
-    {"Symbol": "Rg", "Name": "Roentgenium", "AtomicNumber": 111, "AtomicMass": 280, 
-     "Group": 11, "Period": 7, "Category": "Logam Transisi", "Color": "#B5651D", "Electronegativity": None, "Hazards": ["Radioaktif"]},
-    {"Symbol": "Cn", "Name": "Kopernisium", "AtomicNumber": 112, "AtomicMass": 285, 
-     "Group": 12, "Period": 7, "Category": "Logam Transisi", "Color": "#7FFFD4", "Electronegativity": None, "Hazards": ["Radioaktif"]},
-    {"Symbol": "Nh", "Name": "Nihonium", "AtomicNumber": 113, "AtomicMass": 286, 
-     "Group": 13, "Period": 7, "Category": "Logam Pascatransisi", "Color": "#118AB2", "Electronegativity": None, "Hazards": ["Radioaktif"]},
-    {"Symbol": "Fl", "Name": "Flerovium", "AtomicNumber": 114, "AtomicMass": 289, 
-     "Group": 14, "Period": 7, "Category": "Logam Pascatransisi", "Color": "#073B4C", "Electronegativity": None, "Hazards": ["Radioaktif"]},
-    {"Symbol": "Mc", "Name": "Moscovium", "AtomicNumber": 115, "AtomicMass": 290, 
-     "Group": 15, "Period": 7, "Category": "Logam Pascatransisi", "Color": "#FF6B6B", "Electronegativity": None, "Hazards": ["Radioaktif"]},
-    {"Symbol": "Lv", "Name": "Livermorium", "AtomicNumber": 116, "AtomicMass": 293, 
-     "Group": 16, "Period": 7, "Category": "Logam Pascatransisi", "Color": "#FFD166", "Electronegativity": None, "Hazards": ["Radioaktif"]},
-    {"Symbol": "Ts", "Name": "Tennessine", "AtomicNumber": 117, "AtomicMass": 294, 
-     "Group": 17, "Period": 7, "Category": "Halogen", "Color": "#06D6A0", "Electronegativity": None, "Hazards": ["Radioaktif"]},
+    # Contoh unsur terakhir
     {"Symbol": "Og", "Name": "Oganesson", "AtomicNumber": 118, "AtomicMass": 294, 
-     "Group": 18, "Period": 7, "Category": "Gas Mulia", "Color": "#4ECDC4", "Electronegativity": None, "Hazards": ["Radioaktif"]}
+     "Group": 18, "Period": 7, "Category": "Belum Diketahui", "Color": "#9D4EDD", "Electronegativity": None, "Hazards": ["Radioaktif"]}
 ]
 
 # Database senyawa kimia (diperbanyak)
@@ -688,6 +403,7 @@ COMPOUNDS = {
     "Iodin (I₂)": {"color": "#9400D3", "formula": "I₂", "type": "Halogen", "hazards": ["Beracun"]},
     "Aluminium Klorida (AlCl₃)": {"color": "#FFFFFF", "formula": "AlCl₃", "type": "Garam", "hazards": ["Korosif"]},
     "Natrium Sulfat (Na₂SO₄)": {"color": "#FFFFFF", "formula": "Na₂SO₄", "type": "Garam", "hazards": []},
+    # Senyawa tambahan baru
     "Kalium Klorat (KClO₃)": {"color": "#FFFFFF", "formula": "KClO₃", "type": "Oksidator", "hazards": ["Pengoksidasi"]},
     "Seng (Zn)": {"color": "#7FFFD4", "formula": "Zn", "type": "Logam", "hazards": []},
     "Asam Oksalat (H₂C₂O₄)": {"color": "#FFFFFF", "formula": "H₂C₂O₄", "type": "Asam Organik", "hazards": ["Korosif", "Beracun"]},
@@ -708,318 +424,14 @@ COMPOUNDS = {
     "Kalium Hidrogen Ftalat (KHC₈H₄O₄)": {"color": "#FFFFFF", "formula": "KHC₈H₄O₄", "type": "Standar", "hazards": []},
     "Kloroform (CHCl₃)": {"color": "#87CEEB", "formula": "CHCl₃", "type": "Pelarut", "hazards": ["Karsinogen"]},
     "Asam Borat (H₃BO₃)": {"color": "#FFFFFF", "formula": "H₃BO₃", "type": "Asam Lemah", "hazards": ["Iritan"]},
-    "Tembaga Oksida (CuO)": {"color": "#000000", "formula": "CuO", "type": "Oksida", "hazards": []},
-    "Besi Oksida (Fe₂O₃)": {"color": "#B22222", "formula": "Fe₂O₃", "type": "Oksida", "hazards": []},
-    "Natrium Oksida (Na₂O)": {"color": "#FFFFFF", "formula": "Na₂O", "type": "Oksida", "hazards": ["Korosif"]},
-    "Magnesium Oksida (MgO)": {"color": "#FFFFFF", "formula": "MgO", "type": "Oksida", "hazards": []},
-    "Aluminium Oksida (Al₂O₃)": {"color": "#FFFFFF", "formula": "Al₂O₃", "type": "Oksida", "hazards": []},
-    "Seng Oksida (ZnO)": {"color": "#FFFFFF", "formula": "ZnO", "type": "Oksida", "hazards": []},
-    "Timbal Oksida (PbO)": {"color": "#FFD700", "formula": "PbO", "type": "Oksida", "hazards": ["Beracun"]},
-    "Perak Oksida (Ag₂O)": {"color": "#C0C0C0", "formula": "Ag₂O", "type": "Oksida", "hazards": []},
-    "Merkuri Oksida (HgO)": {"color": "#FF0000", "formula": "HgO", "type": "Oksida", "hazards": ["Beracun"]},
-    "Kalsium Karbonat (CaCO₃)": {"color": "#FFFFFF", "formula": "CaCO₃", "type": "Garam", "hazards": []},
-    "Natrium Fosfat (Na₃PO₄)": {"color": "#FFFFFF", "formula": "Na₃PO₄", "type": "Garam", "hazards": []},
-    "Kalium Karbonat (K₂CO₃)": {"color": "#FFFFFF", "formula": "K₂CO₃", "type": "Garam", "hazards": []},
-    "Magnesium Sulfat (MgSO₄)": {"color": "#FFFFFF", "formula": "MgSO₄", "type": "Garam", "hazards": []},
-    "Barium Sulfat (BaSO₄)": {"color": "#FFFFFF", "formula": "BaSO₄", "type": "Garam", "hazards": []},
-    "Kalium Sulfat (K₂SO₄)": {"color": "#FFFFFF", "formula": "K₂SO₄", "type": "Garam", "hazards": []},
-    "Amonium Klorida (NH₄Cl)": {"color": "#FFFFFF", "formula": "NH₄Cl", "type": "Garam", "hazards": []},
-    "Natrium Hidroksida (NaOH)": {"color": "#FFFFFF", "formula": "NaOH", "type": "Basa Kuat", "hazards": ["Korosif"]},
-    "Kalium Hidroksida (KOH)": {"color": "#FFFFFF", "formula": "KOH", "type": "Basa Kuat", "hazards": ["Korosif"]},
-    "Kalsium Hidroksida (Ca(OH)₂)": {"color": "#FFFFFF", "formula": "Ca(OH)₂", "type": "Basa", "hazards": ["Iritan"]},
-    "Magnesium Hidroksida (Mg(OH)₂)": {"color": "#FFFFFF", "formula": "Mg(OH)₂", "type": "Basa", "hazards": []},
-    "Aluminium Hidroksida (Al(OH)₃)": {"color": "#FFFFFF", "formula": "Al(OH)₃", "type": "Basa", "hazards": []},
-    "Besi Hidroksida (Fe(OH)₃)": {"color": "#B5651D", "formula": "Fe(OH)₃", "type": "Basa", "hazards": []},
-    "Tembaga Hidroksida (Cu(OH)₂)": {"color": "#00B4D8", "formula": "Cu(OH)₂", "type": "Basa", "hazards": []},
-    "Seng Hidroksida (Zn(OH)₂)": {"color": "#FFFFFF", "formula": "Zn(OH)₂", "type": "Basa", "hazards": []},
-    "Timbal Hidroksida (Pb(OH)₂)": {"color": "#FFD700", "formula": "Pb(OH)₂", "type": "Basa", "hazards": ["Beracun"]},
-    "Perak Hidroksida (AgOH)": {"color": "#C0C0C0", "formula": "AgOH", "type": "Basa", "hazards": []},
-    "Merkuri Hidroksida (Hg(OH)₂)": {"color": "#FF0000", "formula": "Hg(OH)₂", "type": "Basa", "hazards": ["Beracun"]}
 }
 
 # Database reaksi kimia (diperbanyak)
 REACTIONS = [
-    # Reaksi asam-basa
-    {
-        "reagents": ["Asam Klorida (HCl)", "Natrium Hidroksida (NaOH)"],
-        "products": ["Natrium Klorida (NaCl)", "Air (H₂O)"],
-        "equation": "HCl + NaOH → NaCl + H₂O",
-        "type": "Netralisasi",
-        "color_change": ["#F0F0F0 + #FFFFFF → #FFFFFF + #ADD8E6"],
-        "energy": "Eksoterm",
-        "hazards": ["Korosif"],
-        "apd": ["Kacamata", "Sarung Tangan"],
-        "description": "Reaksi netralisasi antara asam kuat dan basa kuat menghasilkan garam dan air."
-    },
-    {
-        "reagents": ["Asam Sulfat (H₂SO₄)", "Kalium Hidroksida (KOH)"],
-        "products": ["Kalium Sulfat (K₂SO₄)", "Air (H₂O)"],
-        "equation": "H₂SO₄ + 2KOH → K₂SO₄ + 2H₂O",
-        "type": "Netralisasi",
-        "color_change": ["#F5F5F5 + #FFFFFF → #FFFFFF + #ADD8E6"],
-        "energy": "Eksoterm",
-        "hazards": ["Korosif"],
-        "apd": ["Kacamata", "Sarung Tangan", "Jas Lab"],
-        "description": "Reaksi netralisasi antara asam sulfat dan kalium hidroksida."
-    },
-    {
-        "reagents": ["Asam Asetat (CH₃COOH)", "Natrium Hidroksida (NaOH)"],
-        "products": ["Natrium Asetat (CH₃COONa)", "Air (H₂O)"],
-        "equation": "CH₃COOH + NaOH → CH₃COONa + H₂O",
-        "type": "Netralisasi",
-        "color_change": ["#F5F5DC + #FFFFFF → #FFFFFF + #ADD8E6"],
-        "energy": "Eksoterm",
-        "hazards": ["Korosif"],
-        "apd": ["Kacamata", "Sarung Tangan"],
-        "description": "Reaksi netralisasi antara asam lemah dan basa kuat."
-    },
+    # Reaksi sebelumnya
+    # ... (reaksi yang sudah ada)
     
-    # Reaksi logam-asam
-    {
-        "reagents": ["Magnesium (Mg)", "Asam Klorida (HCl)"],
-        "products": ["Magnesium Klorida (MgCl₂)", "Hidrogen (H₂)"],
-        "equation": "Mg + 2HCl → MgCl₂ + H₂",
-        "type": "Reaksi Logam-Asam",
-        "color_change": ["#FFD700 + #F0F0F0 → #FFFFFF + #F0F8FF"],
-        "energy": "Eksoterm",
-        "hazards": ["Gas Mudah Terbakar"],
-        "apd": ["Kacamata", "Sarung Tangan"],
-        "description": "Logam magnesium bereaksi dengan asam klorida menghasilkan gas hidrogen."
-    },
-    {
-        "reagents": ["Seng (Zn)", "Asam Sulfat (H₂SO₄)"],
-        "products": ["Seng Sulfat (ZnSO₄)", "Hidrogen (H₂)"],
-        "equation": "Zn + H₂SO₄ → ZnSO₄ + H₂",
-        "type": "Reaksi Logam-Asam",
-        "color_change": ["#7FFFD4 + #F5F5F5 → #FFFFFF + #F0F8FF"],
-        "energy": "Eksoterm",
-        "hazards": ["Gas Mudah Terbakar"],
-        "apd": ["Kacamata", "Sarung Tangan"],
-        "description": "Logam seng bereaksi dengan asam sulfat menghasilkan gas hidrogen."
-    },
-    {
-        "reagents": ["Besi (Fe)", "Asam Klorida (HCl)"],
-        "products": ["Besi Klorida (FeCl₂)", "Hidrogen (H₂)"],
-        "equation": "Fe + 2HCl → FeCl₂ + H₂",
-        "type": "Reaksi Logam-Asam",
-        "color_change": ["#B5651D + #F0F0F0 → #76D7EA + #F0F8FF"],
-        "energy": "Eksoterm",
-        "hazards": ["Gas Mudah Terbakar"],
-        "apd": ["Kacamata", "Sarung Tangan"],
-        "description": "Logam besi bereaksi dengan asam klorida menghasilkan gas hidrogen."
-    },
-    
-    # Reaksi pengendapan
-    {
-        "reagents": ["Perak Nitrat (AgNO₃)", "Natrium Klorida (NaCl)"],
-        "products": ["Perak Klorida (AgCl)", "Natrium Nitrat (NaNO₃)"],
-        "equation": "AgNO₃ + NaCl → AgCl + NaNO₃",
-        "type": "Pengendapan",
-        "color_change": ["#FFFFFF + #FFFFFF → #FFFFFF + #FFFFFF"],
-        "energy": "Endoterm",
-        "hazards": [],
-        "apd": ["Kacamata"],
-        "description": "Reaksi pengendapan menghasilkan endapan putih perak klorida."
-    },
-    {
-        "reagents": ["Barium Klorida (BaCl₂)", "Natrium Sulfat (Na₂SO₄)"],
-        "products": ["Barium Sulfat (BaSO₄)", "Natrium Klorida (NaCl)"],
-        "equation": "BaCl₂ + Na₂SO₄ → BaSO₄ + 2NaCl",
-        "type": "Pengendapan",
-        "color_change": ["#FFFFFF + #FFFFFF → #FFFFFF + #FFFFFF"],
-        "energy": "Endoterm",
-        "hazards": ["Beracun"],
-        "apd": ["Kacamata", "Sarung Tangan"],
-        "description": "Reaksi pengendapan menghasilkan endapan putih barium sulfat."
-    },
-    {
-        "reagents": ["Tembaga Sulfat (CuSO₄)", "Natrium Hidroksida (NaOH)"],
-        "products": ["Tembaga Hidroksida (Cu(OH)₂)", "Natrium Sulfat (Na₂SO₄)"],
-        "equation": "CuSO₄ + 2NaOH → Cu(OH)₂ + Na₂SO₄",
-        "type": "Pengendapan",
-        "color_change": ["#00B4D8 + #FFFFFF → #00B4D8 + #FFFFFF"],
-        "energy": "Endoterm",
-        "hazards": [],
-        "apd": ["Kacamata"],
-        "description": "Reaksi pengendapan menghasilkan endapan biru tembaga hidroksida."
-    },
-    
-    # Reaksi redoks
-    {
-        "reagents": ["Kalium Permanganat (KMnO₄)", "Asam Oksalat (H₂C₂O₄)"],
-        "products": ["Mangan Sulfat (MnSO₄)", "Karbon Dioksida (CO₂)", "Kalium Sulfat (K₂SO₄)", "Air (H₂O)"],
-        "equation": "2KMnO₄ + 5H₂C₂O₄ + 3H₂SO₄ → 2MnSO₄ + 10CO₂ + K₂SO₄ + 8H₂O",
-        "type": "Redoks",
-        "color_change": ["#9D00FF + #FFFFFF → #B5651D + #A9A9A9 + #FFFFFF + #ADD8E6"],
-        "energy": "Eksoterm",
-        "hazards": ["Beracun"],
-        "apd": ["Kacamata", "Sarung Tangan", "Jas Lab"],
-        "description": "Reaksi titrasi antara kalium permanganat dan asam oksalat."
-    },
-    {
-        "reagents": ["Kalium Dikromat (K₂Cr₂O₇)", "Asam Sulfat (H₂SO₄)"],
-        "products": ["Kromium Sulfat (Cr₂(SO₄)₃)", "Kalium Sulfat (K₂SO₄)", "Air (H₂O)", "Oksigen (O₂)"],
-        "equation": "4K₂Cr₂O₇ + 6H₂SO₄ → 2Cr₂(SO₄)₃ + 2K₂SO₄ + 6H₂O + 3O₂",
-        "type": "Redoks",
-        "color_change": ["#FF4500 + #F5F5F5 → #B5651D + #FFFFFF + #ADD8E6 + #87CEEB"],
-        "energy": "Eksoterm",
-        "hazards": ["Pengoksidasi", "Korosif", "Karsinogen"],
-        "apd": ["Sarung Tangan", "Kacamata", "Jas Lab", "Pelindung Wajah"],
-        "description": "Reaksi dekomposisi kalium dikromat dengan asam sulfat menghasilkan gas oksigen."
-    },
-    {
-        "reagents": ["Hidrogen Peroksida (H₂O₂)", "Kalium Iodida (KI)"],
-        "products": ["Iodin (I₂)", "Kalium Hidroksida (KOH)"],
-        "equation": "H₂O₂ + 2KI → I₂ + 2KOH",
-        "type": "Redoks",
-        "color_change": ["#F0F8FF + #FFFFFF → #9400D3 + #FFFFFF"],
-        "energy": "Eksoterm",
-        "hazards": ["Beracun"],
-        "apd": ["Kacamata", "Sarung Tangan"],
-        "description": "Reaksi menghasilkan iodin yang berwarna ungu."
-    },
-    
-    # Reaksi pembakaran
-    {
-        "reagents": ["Metana (CH₄)", "Oksigen (O₂)"],
-        "products": ["Karbon Dioksida (CO₂)", "Air (H₂O)"],
-        "equation": "CH₄ + 2O₂ → CO₂ + 2H₂O",
-        "type": "Pembakaran",
-        "color_change": ["#87CEEB + #87CEEB → #A9A9A9 + #ADD8E6"],
-        "energy": "Eksoterm",
-        "hazards": ["Mudah Terbakar"],
-        "apd": ["Kacamata"],
-        "description": "Pembakaran metana menghasilkan karbon dioksida dan air."
-    },
-    {
-        "reagents": ["Etanol (C₂H₅OH)", "Oksigen (O₂)"],
-        "products": ["Karbon Dioksida (CO₂)", "Air (H₂O)"],
-        "equation": "C₂H₅OH + 3O₂ → 2CO₂ + 3H₂O",
-        "type": "Pembakaran",
-        "color_change": ["#F0FFF0 + #87CEEB → #A9A9A9 + #ADD8E6"],
-        "energy": "Eksoterm",
-        "hazards": ["Mudah Terbakar"],
-        "apd": ["Kacamata"],
-        "description": "Pembakaran etanol menghasilkan karbon dioksida dan air."
-    },
-    {
-        "reagents": ["Magnesium (Mg)", "Oksigen (O₂)"],
-        "products": ["Magnesium Oksida (MgO)"],
-        "equation": "2Mg + O₂ → 2MgO",
-        "type": "Pembakaran",
-        "color_change": ["#FFD700 + #87CEEB → #FFFFFF"],
-        "energy": "Eksoterm",
-        "hazards": ["Cahaya Terang"],
-        "apd": ["Kacamata Pelindung", "Sarung Tangan"],
-        "description": "Pembakaran magnesium menghasilkan cahaya putih terang."
-    },
-    
-    # Reaksi sintesis
-    {
-        "reagents": ["Belerang (S)", "Besi (Fe)"],
-        "products": ["Besi Sulfida (FeS)"],
-        "equation": "Fe + S → FeS",
-        "type": "Sintesis",
-        "color_change": ["#FFD166 + #B5651D → #B5651D"],
-        "energy": "Eksoterm",
-        "hazards": ["Panas"],
-        "apd": ["Sarung Tangan", "Kacamata"],
-        "description": "Pembentukan besi sulfida dari logam besi dan belerang."
-    },
-    {
-        "reagents": ["Hidrogen (H₂)", "Oksigen (O₂)"],
-        "products": ["Air (H₂O)"],
-        "equation": "2H₂ + O₂ → 2H₂O",
-        "type": "Sintesis",
-        "color_change": ["#F0F8FF + #87CEEB → #ADD8E6"],
-        "energy": "Eksoterm",
-        "hazards": ["Ledakan"],
-        "apd": ["Kacamata", "Pelindung Wajah"],
-        "description": "Reaksi pembentukan air dari hidrogen dan oksigen."
-    },
-    {
-        "reagents": ["Natrium (Na)", "Klorin (Cl₂)"],
-        "products": ["Natrium Klorida (NaCl)"],
-        "equation": "2Na + Cl₂ → 2NaCl",
-        "type": "Sintesis",
-        "color_change": ["#FFD166 + #90EE90 → #FFFFFF"],
-        "energy": "Eksoterm",
-        "hazards": ["Ledakan"],
-        "apd": ["Kacamata", "Pelindung Wajah", "Sarung Tangan"],
-        "description": "Reaksi pembentukan garam dapur dari natrium dan klorin."
-    },
-    
-    # Reaksi dekomposisi
-    {
-        "reagents": ["Kalium Klorat (KClO₃)"],
-        "products": ["Kalium Klorida (KCl)", "Oksigen (O₂)"],
-        "equation": "2KClO₃ → 2KCl + 3O₂",
-        "type": "Dekomposisi",
-        "color_change": ["#FFFFFF → #FFFFFF + #87CEEB"],
-        "energy": "Endoterm",
-        "hazards": ["Pengoksidasi"],
-        "apd": ["Kacamata"],
-        "description": "Dekomposisi kalium klorat menghasilkan oksigen."
-    },
-    {
-        "reagents": ["Kalsium Karbonat (CaCO₃)"],
-        "products": ["Kalsium Oksida (CaO)", "Karbon Dioksida (CO₂)"],
-        "equation": "CaCO₃ → CaO + CO₂",
-        "type": "Dekomposisi",
-        "color_change": ["#FFFFFF → #FFFFFF + #A9A9A9"],
-        "energy": "Endoterm",
-        "hazards": [],
-        "apd": ["Kacamata"],
-        "description": "Dekomposisi kalsium karbonat menghasilkan kalsium oksida dan karbon dioksida."
-    },
-    {
-        "reagents": ["Hidrogen Peroksida (H₂O₂)"],
-        "products": ["Air (H₂O)", "Oksigen (O₂)"],
-        "equation": "2H₂O₂ → 2H₂O + O₂",
-        "type": "Dekomposisi",
-        "color_change": ["#F0F8FF → #ADD8E6 + #87CEEB"],
-        "energy": "Eksoterm",
-        "hazards": ["Pengoksidasi"],
-        "apd": ["Kacamata"],
-        "description": "Dekomposisi hidrogen peroksida menghasilkan oksigen."
-    },
-    
-    # Reaksi pertukaran ganda
-    {
-        "reagents": ["Natrium Nitrat (NaNO₃)", "Kalium Klorida (KCl)"],
-        "products": ["Kalium Nitrat (KNO₃)", "Natrium Klorida (NaCl)"],
-        "equation": "NaNO₃ + KCl → KNO₃ + NaCl",
-        "type": "Pertukaran Ganda",
-        "color_change": ["#FFFFFF + #FFFFFF → #FFFFFF + #FFFFFF"],
-        "energy": "Endoterm",
-        "hazards": [],
-        "apd": ["Sarung Tangan"],
-        "description": "Reaksi pertukaran ion antara natrium nitrat dan kalium klorida."
-    },
-    {
-        "reagents": ["Tembaga Sulfat (CuSO₄)", "Besi (Fe)"],
-        "products": ["Besi Sulfat (FeSO₄)", "Tembaga (Cu)"],
-        "equation": "CuSO₄ + Fe → FeSO₄ + Cu",
-        "type": "Pertukaran Ganda",
-        "color_change": ["#00B4D8 + #B5651D → #76D7EA + #D2691E"],
-        "energy": "Eksoterm",
-        "hazards": [],
-        "apd": ["Kacamata"],
-        "description": "Reaksi pertukaran logam tembaga dengan besi."
-    },
-    {
-        "reagents": ["Perak Nitrat (AgNO₃)", "Tembaga (Cu)"],
-        "products": ["Tembaga Nitrat (Cu(NO₃)₂)", "Perak (Ag)"],
-        "equation": "2AgNO₃ + Cu → Cu(NO₃)₂ + 2Ag",
-        "type": "Pertukaran Ganda",
-        "color_change": ["#FFFFFF + #D2691E → #00B4D8 + #C0C0C0"],
-        "energy": "Eksoterm",
-        "hazards": [],
-        "apd": ["Kacamata"],
-        "description": "Reaksi pertukaran logam perak dengan tembaga."
-    },
-    
-    # Reaksi khusus
+    # Reaksi baru
     {
         "reagents": ["Kalium Klorat (KClO₃)", "Gula (C₁₂H₂₂O₁₁)"],
         "products": ["Kalium Klorida (KCl)", "Karbon Dioksida (CO₂)", "Air (H₂O)"],
@@ -1030,6 +442,28 @@ REACTIONS = [
         "hazards": ["Ledakan", "Panas"],
         "apd": ["Kacamata", "Sarung Tangan", "Pelindung Wajah"],
         "description": "Reaksi pembakaran gula dengan kalium klorat menghasilkan nyala api yang kuat."
+    },
+    {
+        "reagents": ["Seng (Zn)", "Asam Klorida (HCl)"],
+        "products": ["Seng Klorida (ZnCl₂)", "Hidrogen (H₂)"],
+        "equation": "Zn + 2HCl → ZnCl₂ + H₂",
+        "type": "Reaksi Logam-Asam",
+        "color_change": ["#7FFFD4 + #F0F0F0 → #FFFFFF + #F0F8FF"],
+        "energy": "Eksoterm",
+        "hazards": ["Gas Mudah Terbakar"],
+        "apd": ["Sarung Tangan", "Kacamata"],
+        "description": "Logam seng bereaksi dengan asam klorida menghasilkan gas hidrogen."
+    },
+    {
+        "reagents": ["Kalium Dikromat (K₂Cr₂O₇)", "Asam Sulfat (H₂SO₄)"],
+        "products": ["Kalium Sulfat (K₂SO₄)", "Kromium Sulfat (Cr₂(SO₄)₃)", "Air (H₂O)", "Oksigen (O₂)"],
+        "equation": "4K₂Cr₂O₇ + 6H₂SO₄ → 2K₂SO₄ + 2Cr₂(SO₄)₃ + 6H₂O + 3O₂",
+        "type": "Redoks",
+        "color_change": ["#FF4500 + #F5F5F5 → #FFFFFF + #B5651D + #ADD8E6 + #87CEEB"],
+        "energy": "Eksoterm",
+        "hazards": ["Pengoksidasi", "Korosif", "Karsinogen"],
+        "apd": ["Sarung Tangan", "Kacamata", "Jas Lab", "Pelindung Wajah"],
+        "description": "Reaksi dekomposisi kalium dikromat dengan asam sulfat menghasilkan gas oksigen."
     },
     {
         "reagents": ["Natrium Hipoklorit (NaClO)", "Hidrogen Peroksida (H₂O₂)"],
@@ -1047,11 +481,44 @@ REACTIONS = [
         "products": ["Tembaga Hidroksida (Cu(OH)₂)", "Amonium Sulfat ((NH₄)₂SO₄)"],
         "equation": "2NH₄OH + CuSO₄ → Cu(OH)₂ + (NH₄)₂SO₄",
         "type": "Pengendapan",
-        "color_change": ["#F0F8FF + #00B4D8 → #00B4D8 + #FFFFFF"],
+        "color_change": ["#F0F8FF + #00B4D8 → #76D7EA + #FFFFFF"],
         "energy": "Endoterm",
         "hazards": ["Iritan"],
         "apd": ["Sarung Tangan", "Kacamata"],
         "description": "Reaksi menghasilkan endapan tembaga hidroksida berwarna biru."
+    },
+    {
+        "reagents": ["Belerang (S)", "Besi (Fe)"],
+        "products": ["Besi Sulfida (FeS)"],
+        "equation": "Fe + S → FeS",
+        "type": "Sintesis",
+        "color_change": ["#FFD166 + #B5651D → #B5651D"],
+        "energy": "Eksoterm",
+        "hazards": ["Panas"],
+        "apd": ["Sarung Tangan", "Kacamata"],
+        "description": "Pembentukan besi sulfida dari logam besi dan belerang."
+    },
+    {
+        "reagents": ["Natrium Nitrat (NaNO₃)", "Kalium Klorida (KCl)"],
+        "products": ["Kalium Nitrat (KNO₃)", "Natrium Klorida (NaCl)"],
+        "equation": "NaNO₃ + KCl → KNO₃ + NaCl",
+        "type": "Pertukaran Ganda",
+        "color_change": ["#FFFFFF + #FFFFFF → #FFFFFF + #FFFFFF"],
+        "energy": "Endoterm",
+        "hazards": [],
+        "apd": ["Sarung Tangan"],
+        "description": "Reaksi pertukaran ion antara natrium nitrat dan kalium klorida."
+    },
+    {
+        "reagents": ["Asam Oksalat (H₂C₂O₄)", "Kalium Permanganat (KMnO₄)"],
+        "products": ["Karbon Dioksida (CO₂)", "Mangan Sulfat (MnSO₄)", "Kalium Sulfat (K₂SO₄)", "Air (H₂O)"],
+        "equation": "5H₂C₂O₄ + 2KMnO₄ + 3H₂SO₄ → K₂SO₄ + 2MnSO₄ + 10CO₂ + 8H₂O",
+        "type": "Redoks",
+        "color_change": ["#FFFFFF + #9D00FF → #A9A9A9 + #B5651D + #FFFFFF + #ADD8E6"],
+        "energy": "Eksoterm",
+        "hazards": ["Beracun"],
+        "apd": ["Sarung Tangan", "Kacamata", "Jas Lab"],
+        "description": "Reaksi titrasi antara asam oksalat dan kalium permanganat."
     },
     {
         "reagents": ["Kloroform (CHCl₃)", "Oksigen (O₂)"],
@@ -1063,7 +530,7 @@ REACTIONS = [
         "hazards": ["Gas Beracun"],
         "apd": ["Masker Respirator", "Kacamata"],
         "description": "Pembakaran kloroform menghasilkan gas beracun."
-    }
+    },
 ]
 
 # Fungsi untuk membuat kartu unsur
@@ -1101,16 +568,10 @@ def create_element_card(element):
 
 # Fungsi untuk menampilkan tabel periodik
 def show_periodic_table():
-    st.markdown("""
-    <div class="header-with-emoji">
-        <span class="emoji">📋</span>
-        <h1>Tabel Periodik Interaktif</h1>
-    </div>
-    """, unsafe_allow_html=True)
-    
+    st.header("📊 Tabel Periodik Interaktif")
     st.markdown("""
     <div class="periodic-header">
-        <h2 style="color:white; text-align:center; font-size:32px;">Tabel Periodik Unsur Kimia (118 Unsur Lengkap)</h2>
+        <h2 style="color:white; text-align:center; font-size:32px;">Tabel Periodik Unsur Kimia (118 Unsur)</h2>
         <p style="text-align:center; font-size:18px;">Klik pada kartu unsur untuk melihat detail lengkap</p>
     </div>
     """, unsafe_allow_html=True)
@@ -1160,13 +621,7 @@ def show_periodic_table():
             st.markdown(create_element_card(element), unsafe_allow_html=True)
     
     # Grafik interaktif
-    st.markdown("""
-    <div class="header-with-emoji">
-        <span class="emoji">📈</span>
-        <h2>Visualisasi Sifat Unsur</h2>
-    </div>
-    """, unsafe_allow_html=True)
-    
+    st.subheader("📈 Visualisasi Sifat Unsur")
     df = pd.DataFrame(PERIODIC_TABLE)
     
     fig = px.scatter(
@@ -1195,13 +650,7 @@ def show_periodic_table():
 
 # Fungsi untuk menampilkan simulasi reaksi
 def show_reaction_simulator():
-    st.markdown("""
-    <div class="header-with-emoji">
-        <span class="emoji">🧪</span>
-        <h1>Simulator Reaksi Kimia</h1>
-    </div>
-    """, unsafe_allow_html=True)
-    
+    st.header("🧪 Simulator Reaksi Kimia")
     st.markdown("""
     <div class="periodic-header">
         <h2 style="color:white; text-align:center; font-size:32px;">Simulasi Reaksi Kimia Interaktif</h2>
@@ -1245,13 +694,7 @@ def show_reaction_simulator():
         st.markdown(f"<div class='reaction-container'>", unsafe_allow_html=True)
         
         # Header reaksi
-        st.markdown("""
-        <div class="header-with-emoji">
-            <span class="emoji">⚗️</span>
-            <h2>Hasil Reaksi: {}</h2>
-        </div>
-        """.format(reaction['type']), unsafe_allow_html=True)
-        
+        st.subheader(f"Reaksi: {reaction['type']}")
         st.markdown(f"<div class='chemical-equation'>{reaction['equation']}</div>", unsafe_allow_html=True)
         
         # Visualisasi warna
@@ -1279,13 +722,7 @@ def show_reaction_simulator():
                                 unsafe_allow_html=True)
         
         # Informasi reaksi
-        st.markdown("""
-        <div class="header-with-emoji">
-            <span class="emoji">📝</span>
-            <h2>Informasi Reaksi</h2>
-        </div>
-        """, unsafe_allow_html=True)
-        
+        st.subheader("📝 Informasi Reaksi")
         st.markdown(f"**Jenis Reaksi:** {reaction['type']}")
         st.markdown(f"**Perubahan Energi:** {reaction['energy']}")
         st.markdown(f"**Deskripsi:** {reaction['description']}")
@@ -1293,22 +730,12 @@ def show_reaction_simulator():
         # Bahaya dan APD
         col4, col5 = st.columns(2)
         with col4:
-            st.markdown("""
-            <div class="header-with-emoji">
-                <span class="emoji">⚠️</span>
-                <h3>Simbol Bahaya</h3>
-            </div>
-            """, unsafe_allow_html=True)
+            st.subheader("⚠️ Simbol Bahaya")
             for hazard in reaction["hazards"]:
                 st.markdown(f"<div class='warning-badge'>{hazard}</div>", unsafe_allow_html=True)
         
         with col5:
-            st.markdown("""
-            <div class="header-with-emoji">
-                <span class="emoji">🛡️</span>
-                <h3>Alat Pelindung Diri (APD)</h3>
-            </div>
-            """, unsafe_allow_html=True)
+            st.subheader("🛡️ Alat Pelindung Diri (APD)")
             for apd in reaction["apd"]:
                 st.markdown(f"<div class='apd-badge'>{apd}</div>", unsafe_allow_html=True)
         
@@ -1327,13 +754,7 @@ def show_reaction_simulator():
 
 # Fungsi untuk menampilkan informasi tambahan
 def show_additional_info():
-    st.markdown("""
-    <div class="header-with-emoji">
-        <span class="emoji">📚</span>
-        <h1>Ensiklopedia Kimia</h1>
-    </div>
-    """, unsafe_allow_html=True)
-    
+    st.header("📚 Ensiklopedia Kimia")
     st.markdown("""
     <div class="periodic-header">
         <h2 style="color:white; text-align:center; font-size:32px;">Panduan Lengkap Kimia Dasar</h2>
@@ -1342,13 +763,7 @@ def show_additional_info():
     """, unsafe_allow_html=True)
     
     # Jenis-jenis reaksi kimia
-    st.markdown("""
-    <div class="header-with-emoji">
-        <span class="emoji">🧪</span>
-        <h2>Jenis-Jenis Reaksi Kimia</h2>
-    </div>
-    """, unsafe_allow_html=True)
-    
+    st.subheader("🧪 Jenis-Jenis Reaksi Kimia")
     reaction_types = [
         {"name": "Sintesis", "emoji": "⚗️", "desc": "Dua atau lebih zat bergabung membentuk zat baru. Contoh: 2H₂ + O₂ → 2H₂O"},
         {"name": "Dekomposisi", "emoji": "🧫", "desc": "Satu zat terurai menjadi dua atau lebih zat. Contoh: 2H₂O₂ → 2H₂O + O₂"},
@@ -1364,7 +779,7 @@ def show_additional_info():
             st.markdown(f"""
             <div class="element-card">
                 <div style="display:flex; align-items:center; margin-bottom:15px;">
-                    <span style="font-size:36px; margin-right:15px; animation: bounce 2s infinite;">{rtype['emoji']}</span>
+                    <span style="font-size:36px; margin-right:15px;">{rtype['emoji']}</span>
                     <h3 style="margin:0;">{rtype['name']}</h3>
                 </div>
                 <p style="font-size:16px; color:{text_color};">{rtype['desc']}</p>
@@ -1372,13 +787,7 @@ def show_additional_info():
             """, unsafe_allow_html=True)
     
     # Simbol bahaya (9 simbol)
-    st.markdown("""
-    <div class="header-with-emoji">
-        <span class="emoji">⚠️</span>
-        <h2>Simbol Bahaya Laboratorium (GHS)</h2>
-    </div>
-    """, unsafe_allow_html=True)
-    
+    st.subheader("⚠️ Simbol Bahaya Laboratorium (GHS)")
     hazard_symbols = [
         {"name": "Mudah Terbakar", "emoji": "🔥", "desc": "Bahan yang mudah menyala saat terkena api, panas, percikan api, atau sumber nyala lainnya"},
         {"name": "Mudah Teroksidasi", "emoji": "⚡", "desc": "Bahan yang dapat menyebabkan atau memperparah kebakaran, umumnya menghasilkan panas saat kontak dengan zat lain"},
@@ -1405,13 +814,7 @@ def show_additional_info():
             """, unsafe_allow_html=True)
     
     # Alat pelindung diri
-    st.markdown("""
-    <div class="header-with-emoji">
-        <span class="emoji">🛡️</span>
-        <h2>Alat Pelindung Diri (APD)</h2>
-    </div>
-    """, unsafe_allow_html=True)
-    
+    st.subheader("🛡️ Alat Pelindung Diri (APD)")
     apd_items = [
         {"name": "Kacamata Keselamatan", "emoji": "👓", "desc": "Melindungi mata dari percikan bahan kimia"},
         {"name": "Sarung Tangan", "emoji": "🧤", "desc": "Melindungi tangan dari kontak langsung bahan kimia"},
@@ -1427,7 +830,7 @@ def show_additional_info():
             st.markdown(f"""
             <div class="element-card">
                 <div style="display:flex; align-items:center; margin-bottom:15px;">
-                    <span style="font-size:36px; margin-right:15px; animation: bounce 2s infinite;">{apd['emoji']}</span>
+                    <span style="font-size:36px; margin-right:15px;">{apd['emoji']}</span>
                     <h3 style="margin:0;">{apd['name']}</h3>
                 </div>
                 <p style="font-size:16px; color:{text_color};">{apd['desc']}</p>
@@ -1435,13 +838,7 @@ def show_additional_info():
             """, unsafe_allow_html=True)
     
     # Tips keselamatan
-    st.markdown("""
-    <div class="header-with-emoji">
-        <span class="emoji">🔒</span>
-        <h2>Tips Keselamatan Laboratorium</h2>
-    </div>
-    """, unsafe_allow_html=True)
-    
+    st.subheader("🔒 Tips Keselamatan Laboratorium")
     safety_tips = [
         "Selalu gunakan APD yang sesuai saat bekerja dengan bahan kimia",
         "Kenali sifat dan bahaya bahan kimia sebelum menggunakannya",
@@ -1459,7 +856,7 @@ def show_additional_info():
         st.markdown(f"""
         <div class="element-card" style="padding:15px; margin-bottom:10px;">
             <div style="display:flex; align-items:center;">
-                <span style="font-size:24px; margin-right:15px; color:{dark_color}; animation: bounce 2s infinite;">🔒</span>
+                <span style="font-size:24px; margin-right:15px; color:{dark_color};">🔒</span>
                 <p style="margin:0; font-size:16px; color:{text_color};">{i+1}. {tip}</p>
             </div>
         </div>
@@ -1467,13 +864,7 @@ def show_additional_info():
 
 # Fungsi untuk menampilkan informasi PBK
 def show_chemical_safety():
-    st.markdown("""
-    <div class="header-with-emoji">
-        <span class="emoji">🧪</span>
-        <h1>Penanganan Bahan Kimia (PBK)</h1>
-    </div>
-    """, unsafe_allow_html=True)
-    
+    st.header("🧪 Penanganan Bahan Kimia (PBK)")
     st.markdown("""
     <div class="periodic-header">
         <h2 style="color:white; text-align:center; font-size:32px;">Pedoman Penyimpanan dan Kompatibilitas Bahan Kimia</h2>
@@ -1481,13 +872,7 @@ def show_chemical_safety():
     </div>
     """, unsafe_allow_html=True)
     
-    st.markdown("""
-    <div class="header-with-emoji">
-        <span class="emoji">🏷️</span>
-        <h2>Kelompok Penyimpanan Bahan Kimia</h2>
-    </div>
-    """, unsafe_allow_html=True)
-    
+    st.subheader("🏷️ Kelompok Penyimpanan Bahan Kimia")
     storage_groups = [
         {"name": "Asam Anorganik", "emoji": "🧪", "desc": "HCl, H₂SO₄, HNO₃, H₃PO₄. Simpan terpisah dari basa dan bahan organik."},
         {"name": "Basa", "emoji": "🧴", "desc": "NaOH, KOH, NH₄OH. Simpan terpisah dari asam dan logam."},
@@ -1503,20 +888,14 @@ def show_chemical_safety():
             st.markdown(f"""
             <div class="element-card">
                 <div style="display:flex; align-items:center; margin-bottom:15px;">
-                    <span style="font-size:36px; margin-right:15px; animation: bounce 2s infinite;">{group['emoji']}</span>
+                    <span style="font-size:36px; margin-right:15px;">{group['emoji']}</span>
                     <h3 style="margin:0;">{group['name']}</h3>
                 </div>
                 <p style="font-size:16px; color:{text_color};">{group['desc']}</p>
             </div>
             """, unsafe_allow_html=True)
     
-    st.markdown("""
-    <div class="header-with-emoji">
-        <span class="emoji">🔄</span>
-        <h2>Tabel Kompatibilitas Bahan Kimia</h2>
-    </div>
-    """, unsafe_allow_html=True)
-    
+    st.subheader("🔄 Tabel Kompatibilitas Bahan Kimia")
     st.markdown("""
     <p style="font-size:16px; margin-bottom:20px;">Tabel berikut menunjukkan kelompok bahan kimia yang dapat disimpan bersama dan yang harus dipisahkan:</p>
     """, unsafe_allow_html=True)
@@ -1534,13 +913,7 @@ def show_chemical_safety():
     df = pd.DataFrame(compatibility_data)
     st.dataframe(df, hide_index=True, use_container_width=True)
     
-    st.markdown("""
-    <div class="header-with-emoji">
-        <span class="emoji">📦</span>
-        <h2>Prinsip Penyimpanan Aman</h2>
-    </div>
-    """, unsafe_allow_html=True)
-    
+    st.subheader("📦 Prinsip Penyimpanan Aman")
     storage_principles = [
         "Simpan bahan kimia berdasarkan kelompok kompatibilitas, bukan berdasarkan abjad",
         "Gunakan wadah sekunder untuk bahan korosif dan beracun",
@@ -1557,19 +930,13 @@ def show_chemical_safety():
         st.markdown(f"""
         <div class="element-card" style="padding:15px; margin-bottom:10px;">
             <div style="display:flex; align-items:center;">
-                <span style="font-size:24px; margin-right:15px; color:{dark_color}; animation: bounce 2s infinite;">📦</span>
+                <span style="font-size:24px; margin-right:15px; color:{dark_color};">📦</span>
                 <p style="margin:0; font-size:16px; color:{text_color};">{i+1}. {principle}</p>
             </div>
         </div>
         """, unsafe_allow_html=True)
     
-    st.markdown("""
-    <div class="header-with-emoji">
-        <span class="emoji">🧯</span>
-        <h2>Tanggap Darurat</h2>
-    </div>
-    """, unsafe_allow_html=True)
-    
+    st.subheader("🧯 Tanggap Darurat")
     emergency_measures = [
         "Tumpahan kecil: Gunakan material penyerap dan sarung tangan",
         "Tumpahan besar: Evakuasi area dan hubungi petugas tanggap darurat",
@@ -1584,20 +951,20 @@ def show_chemical_safety():
         st.markdown(f"""
         <div class="element-card" style="padding:15px; margin-bottom:10px;">
             <div style="display:flex; align-items:center;">
-                <span style="font-size:24px; margin-right:15px; color:{dark_color}; animation: bounce 2s infinite;">🚨</span>
+                <span style="font-size:24px; margin-right:15px; color:{dark_color};">🚨</span>
                 <p style="margin:0; font-size:16px; color:{text_color};">{i+1}. {measure}</p>
             </div>
         </div>
         """, unsafe_allow_html=True)
 
 # UI Utama
+st.title("🔬 Laboratorium Kimia Interaktif")
 st.markdown("""
 <div style="background:linear-gradient(135deg, #1A535C, #073B4C); 
             padding:30px; border-radius:25px; color:white; margin-bottom:30px;
-            text-align:center; box-shadow:0 12px 24px rgba(0,0,0,0.3); position: relative; overflow: hidden;">
-    <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: radial-gradient(circle at center, rgba(255,255,255,0.1), transparent);"></div>
-    <h1 style="color:white; font-size:42px; margin:0; position: relative; z-index: 2;">🔬 Selamat Datang di Laboratorium Kimia Virtual!</h1>
-    <p style="font-size:20px; margin:10px 0 0; position: relative; z-index: 2;">Jelajahi tabel periodik, simulasikan reaksi kimia, dan pelajari konsep kimia dengan cara menyenangkan</p>
+            text-align:center; box-shadow:0 12px 24px rgba(0,0,0,0.3);">
+    <h1 style="color:white; font-size:42px; margin:0;">Selamat Datang di Laboratorium Kimia Virtual!</h1>
+    <p style="font-size:20px; margin:10px 0 0;">Jelajahi tabel periodik, simulasikan reaksi kimia, dan pelajari konsep kimia dengan cara menyenangkan</p>
 </div>
 """, unsafe_allow_html=True)
 
@@ -1622,15 +989,6 @@ st.markdown("""
 <div style="text-align:center; padding:30px; color:#1A535C;">
     <p style="font-size:18px; margin:0;">🔬 Laboratorium Kimia Interaktif © 2023</p>
     <p style="font-size:16px; margin:10px 0;">Dikembangkan dengan Streamlit | Untuk tujuan edukasi</p>
-    <p style="font-size:14px; margin:0;">Versi 5.0 | Terakhir diperbarui: 19 Juli 2023</p>
+    <p style="font-size:14px; margin:0;">Versi 4.0 | Terakhir diperbarui: 18 Juli 2023</p>
 </div>
 """, unsafe_allow_html=True)
-
-# Tambahkan floating emoji secara acak
-for _ in range(5):
-    random_emoji = random.choice(["🧪", "🔬", "⚗️", "🧫", "🧴", "💧", "🔥", "⚡", "🧲"])
-    st.markdown(f"""
-    <div class="floating-chem" style="left:{random.randint(0, 80)}%; top:{random.randint(0, 80)}%; animation-duration:{random.randint(10, 30)}s; font-size:{random.randint(20, 50)}px;">
-        {random_emoji}
-    </div>
-    """, unsafe_allow_html=True)
